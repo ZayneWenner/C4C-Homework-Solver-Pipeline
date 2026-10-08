@@ -1,0 +1,646 @@
+# ============================================================
+# T-box: Linear Algebra（线性代数）
+# ============================================================
+# 这是 C4C "扩展学科" 任务的载体。
+#
+# 设计前提（继承自 starter kit 的核心洞察）：
+#     求解率 = 领域知识覆盖率
+# 所以扩展一门学科，主要工作不是写更多正则，而是把这门学科的
+# 概念图、解法契约、分类规则、验证律写成机器可读的本体。
+#
+# Oracle sources（知识来源，均已蒸馏为本文件的 rules/methods）：
+#   - Gilbert Strang, Introduction to Linear Algebra, 6th ed.
+#   - Steven J. Leon, Linear Algebra with Applications, 9th ed.
+#   - 同济大学《工程数学·线性代数》第 6 版（国内工科主流教材）
+#   - MIT 18.06 Scilab / Problem Sets（特征值与对角化部分）
+#
+# ============================================================
+
+domain: linear_algebra
+version: "1.0"
+display_name: "线性代数 Linear Algebra"
+
+oracle_sources:
+  - type: textbook
+    ref: "Gilbert Strang, Introduction to Linear Algebra, 6th ed."
+    authority: primary
+    distilled_knowledge:
+      - "四个基本子空间: C(A), N(A), C(A^T), N(A^T)；维数关系 rank(A)+dim N(A)=n"
+      - "Ax=b 可解 ⟺ b ∈ C(A)"
+      - "对角化条件: A 有 n 个线性无关特征向量 ⟺ A = SΛS^{-1}"
+      - "对称矩阵必可正交对角化: A = QΛQ^T"
+      - "det(A) = 特征值的乘积; tr(A) = 特征值的和"
+  - type: textbook
+    ref: "同济大学《工程数学·线性代数》第 6 版"
+    authority: primary
+    distilled_knowledge:
+      - "行列式性质: 换行变号; 某行倍数加到另一行值不变; det(AB)=det(A)det(B)"
+      - "矩阵可逆 ⟺ det(A) ≠ 0 ⟺ rank(A) = n ⟺ Ax=0 只有零解"
+      - "初等行变换求逆: (A|E) → (E|A^{-1})"
+      - "线性方程组: r(A) = r(A|b) = n 唯一解；= < n 无穷多解；不等则无解"
+      - "施密特正交化: β_k = α_k - Σ (α_k,β_j)/(β_j,β_j) · β_j"
+      - "正定二次型判据: 各阶顺序主子式全 > 0（赫尔维茨/Sylvester 判据）"
+  - type: textbook
+    ref: "Steven J. Leon, Linear Algebra with Applications, 9th ed."
+    authority: secondary
+    distilled_knowledge:
+      - "Gram-Schmidt 数值稳定性: 修正版优于经典版（本题库用经典版，因作业要求手算）"
+      - "相似不变量: 秩、行列式、迹、特征值在相似变换下不变"
+      - "Jordan 标准形: 亏损矩阵不可对角化，退化为 Jordan 块"
+  - type: exemplar
+    ref: "MIT 18.06 Linear Algebra, Problem Sets 4-6"
+    authority: secondary
+
+# ============================================================
+# CONCEPT GRAPH — 概念图
+# ============================================================
+# 节点类型: concept / solution_method
+# 边: prerequisites / requires / solves
+
+concepts:
+
+  # ──── 基础：矩阵对象 ────
+
+  - id: matrix
+    type: concept
+    name: "矩阵"
+    formal: "m×n 数表 A = (a_{ij})"
+    sympy: "Matrix([[a11,a12],[a21,a22]])"
+    keywords: [matrix, 矩阵]
+    prerequisites: []
+
+  - id: square_matrix
+    type: concept
+    name: "方阵"
+    formal: "n×n 矩阵"
+    prerequisites: [matrix]
+
+  - id: transpose
+    type: concept
+    name: "转置"
+    formal: "(A^T)_{ij} = A_{ji}；性质 (AB)^T = B^T A^T"
+    sympy: "A.T"
+    keywords: [transpose, 转置]
+    prerequisites: [matrix]
+
+  - id: trace
+    type: concept
+    name: "迹"
+    formal: "tr(A) = Σ a_{ii}；性质 tr(AB) = tr(BA)；tr(A) = Σλ"
+    sympy: "A.trace()"
+    keywords: [trace, 迹]
+    prerequisites: [square_matrix]
+
+  - id: symmetric_matrix
+    type: concept
+    name: "对称矩阵"
+    formal: "A^T = A ⟹ 必可正交对角化，特征值全为实数"
+    sympy: "A.is_symmetric()"
+    prerequisites: [transpose]
+
+  - id: identity_matrix
+    type: concept
+    name: "单位矩阵"
+    formal: "AI = IA = A"
+    sympy: "eye(n)"
+    prerequisites: [matrix]
+
+  # ──── 行列式 ────
+
+  - id: determinant
+    type: concept
+    name: "行列式"
+    formal: "det(AB) = det(A)det(B)；A 可逆 ⟺ det(A) ≠ 0"
+    sympy: "A.det()"
+    keywords: [determinant, det, 行列式]
+    prerequisites: [square_matrix]
+
+  - id: determinant_properties
+    type: concept
+    name: "行列式性质"
+    formal: "换行变号；一行倍加，值不变；某行为零则 det=0；det(A^T)=det(A)"
+    prerequisites: [determinant]
+
+  # ──── 逆与秩 ────
+
+  - id: matrix_inverse
+    type: concept
+    name: "逆矩阵"
+    formal: "AA^{-1} = A^{-1}A = I；A 可逆 ⟺ det(A)≠0 ⟺ r(A)=n ⟺ Ax=0 只有零解"
+    sympy: "A.inv()"
+    keywords: [inverse, invertible, 逆矩阵, 求逆]
+    prerequisites: [determinant, identity_matrix]
+
+  - id: matrix_rank
+    type: concept
+    name: "矩阵的秩"
+    formal: "rank(A) = 非零子式最高阶数 = 阶梯形非零行数 = dim C(A)"
+    sympy: "A.rank()"
+    keywords: [rank, 秩]
+    prerequisites: [matrix]
+
+  - id: elementary_operation
+    type: concept
+    name: "初等行变换"
+    formal: "换行 / 倍乘 / 倍加；(A|E) → (E|A^{-1})"
+    sympy: "A.rref()"
+    prerequisites: [matrix]
+
+  # ──── 线性方程组 ────
+
+  - id: linear_system
+    type: concept
+    name: "线性方程组 Ax = b"
+    formal: |
+      解的存在性与个数由增广矩阵 (A|b) 的秩决定:
+        r(A) <  r(A|b)        → 无解
+        r(A) = r(A|b) = n     → 唯一解
+        r(A) = r(A|b) < n     → 无穷多解（通解 = 特解 + 基础解系的线性组合）
+    sympy: "A.gauss_jordan_solve(b) / linsolve"
+    keywords: [system of equations, linear system, 线性方程组, solve Ax=b, 方程组]
+    prerequisites: [matrix_rank, elementary_operation]
+
+  - id: homogeneous_system
+    type: concept
+    name: "齐次方程组 Ax = 0"
+    formal: "总有零解；非零解存在 ⟺ r(A) < n ⟺ 列向量线性相关"
+    sympy: "A.nullspace()"
+    prerequisites: [linear_system]
+
+  # ──── 向量组的线性关系 ────
+
+  - id: linear_independence
+    type: concept
+    name: "线性相关/无关"
+    formal: "Σ c_i v_i = 0 只有零解 ⟺ 无关；⟺ rank([v_1…v_n]) = n"
+    sympy: "Matrix.hstack(v1,...,vn).rank()"
+    keywords: [linearly independent, linearly dependent, 线性相关, 线性无关]
+    prerequisites: [matrix_rank]
+
+  - id: basis
+    type: concept
+    name: "基与维数"
+    formal: "基 = 极大无关组；dim V = 基中向量个数"
+    sympy: "Matrix.columnspace() / rowspace()"
+    keywords: [basis, dimension, 基, 维数, 极大无关组, column space, nullspace]
+    prerequisites: [linear_independence]
+
+  # ──── 特征值 ────
+
+  - id: characteristic_polynomial
+    type: concept
+    name: "特征多项式"
+    formal: "p(λ) = det(A - λI)；根即特征值。"
+    sympy: "A.charpoly()"
+    prerequisites: [determinant, identity_matrix]
+
+  - id: eigenvalue
+    type: concept
+    name: "特征值"
+    formal: "Av = λv (v≠0)。Σλ_i = tr(A)，Πλ_i = det(A)。"
+    sympy: "A.eigenvals()"
+    keywords: [eigenvalue, eigenvalues, characteristic, 特征值]
+    prerequisites: [characteristic_polynomial, trace]
+
+  - id: eigenvector
+    type: concept
+    name: "特征向量与特征空间"
+    formal: "E_λ = N(A - λI)；几何重数 = dim E_λ ≤ 代数重数"
+    sympy: "A.eigenvects()"
+    keywords: [eigenvector, eigenvectors, 特征向量]
+    prerequisites: [eigenvalue, homogeneous_system]
+
+  - id: diagonalization
+    type: concept
+    name: "相似对角化"
+    formal: "A = PΛP^{-1} ⟺ A 有 n 个线性无关特征向量 ⟺ 每个特征值的几何重数=代数重数"
+    sympy: "A.diagonalize()"
+    keywords: [diagonalize, diagonalization, diagonalizable, 对角化]
+    prerequisites: [eigenvector, matrix_inverse]
+
+  - id: defective_matrix
+    type: concept
+    name: "亏损矩阵（不可对角化）"
+    formal: "存在 λ 使几何重数 < 代数重数，需退化为 Jordan 形"
+    prerequisites: [diagonalization]
+
+  # ──── 正交性 ────
+
+  - id: inner_product
+    type: concept
+    name: "内积与范数"
+    formal: "(x,y) = Σ x_i y_i；||x|| = sqrt((x,x))"
+    sympy: "u.dot(v) / u.norm()"
+    prerequisites: []
+
+  - id: orthogonality
+    type: concept
+    name: "正交"
+    formal: "(x,y) = 0；正交向量组必线性无关"
+    prerequisites: [inner_product]
+
+  - id: gram_schmidt
+    type: concept
+    name: "施密特正交化"
+    formal: |
+      β_1 = α_1
+      β_k = α_k - Σ_{j<k} (α_k, β_j)/(β_j, β_j) · β_j
+      再单位化: e_k = β_k / ||β_k||
+    sympy: "GramSchmidt([v1,v2,...], orthonormal=True)"
+    keywords: [gram-schmidt, gram schmidt, orthogonalize, orthogonal basis,
+               施密特, 正交化, 标准正交基]
+    prerequisites: [orthogonality, linear_independence]
+
+  - id: orthogonal_matrix
+    type: concept
+    name: "正交矩阵"
+    formal: "Q^T Q = I；对称矩阵可正交对角化 A = QΛQ^T"
+    prerequisites: [orthogonality, identity_matrix]
+
+  # ──── 二次型 ────
+
+  - id: quadratic_form
+    type: concept
+    name: "二次型与正定性"
+    formal: |
+      f = x^T A x。
+      正定 ⟺ 所有特征值 > 0 ⟺ 各阶顺序主子式 > 0 (Sylvester 判据)
+      负定 ⟺ 顺序主子式负正交替；不定则不满足上述
+    sympy: "A.is_positive_definite"
+    keywords: [positive definite, 正定, quadratic form, 二次型, 顺序主子式]
+    prerequisites: [symmetric_matrix, eigenvalue, determinant]
+
+# ============================================================
+# SOLUTION METHODS — 解法契约
+# ============================================================
+# tool: sympy（确定性符号计算）| llm（国产模型推理）| hybrid（SymPy 算 + LLM 讲）
+
+solution_methods:
+
+  - id: matrix_arithmetic_solver
+    type: solution_method
+    concept: matrix
+    name: "矩阵四则运算 / 转置 / 幂"
+    applies_when: "题目要求计算 A+B, A-B, AB, kA, A^T, A^n"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_arithmetic.py
+    input_schema:
+      matrices: "list of named Matrix"
+      op: "+ | - | * | transpose | power"
+    output_form: "Matrix"
+    sympy_entry: "Matrix.__add__ / __mul__ / .T / **"
+
+  - id: determinant_solver
+    type: solution_method
+    concept: determinant
+    name: "行列式计算"
+    applies_when: "题目明确要求 det(A) 或 |A| 或 行列式"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_determinant.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "scalar"
+    sympy_entry: "Matrix.det()"
+
+  - id: inverse_solver
+    type: solution_method
+    concept: matrix_inverse
+    name: "逆矩阵 / 伴随矩阵法 / 初等变换法"
+    applies_when: "要求 A^{-1} 或判断可逆性"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_inverse.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "Matrix 或 'singular'"
+    sympy_entry: "Matrix.inv()"
+    notes: "必须先用 det 判奇异，避免 SymPy 直接抛异常"
+
+  - id: rank_solver
+    type: solution_method
+    concept: matrix_rank
+    name: "秩的计算"
+    applies_when: "要求 rank(A) 或 r(A)"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_rank.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "int"
+    sympy_entry: "Matrix.rank()"
+
+  - id: trace_transpose_solver
+    type: solution_method
+    concept: trace
+    name: "迹与转置"
+    applies_when: "要求 tr(A) 或 A^T"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_arithmetic.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "scalar 或 Matrix"
+    sympy_entry: "Matrix.trace() / Matrix.T"
+
+  - id: linear_system_solver
+    type: solution_method
+    concept: linear_system
+    name: "线性方程组求解（含解的结构判定）"
+    applies_when: "给出方程组或 Ax=b，要求解、通解、基础解系"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_linear_system.py
+    input_schema:
+      A: "系数矩阵"
+      b: "右端向量（缺省为齐次）"
+    output_form: "unique solution | parametric general solution | no solution"
+    notes: |
+      这是最能体现"不只是给答案"的一题：
+      必须输出 r(A)、r(A|b)、以及通解结构 (特解 + 基础解系线性组合)，
+      而不是只扔一个 particular vector 出来。
+
+  - id: eigen_solver
+    type: solution_method
+    concept: eigenvalue
+    name: "特征值与特征向量"
+    applies_when: "要求 eigenvalues / eigenvectors / 特征多项式"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_eigen.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "dict λ → (代数重数, 几何重数, 特征空间基)"
+    sympy_entry: "Matrix.eigenvects()"
+
+  - id: diagonalize_solver
+    type: solution_method
+    concept: diagonalization
+    name: "对角化 P^{-1}AP = Λ"
+    applies_when: "要求判断是否可对角化，或求 P 与 Λ"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_diagonalize.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "P, Λ 或 'not diagonalizable (defective)'"
+    sympy_entry: "Matrix.diagonalize()"
+
+  - id: gram_schmidt_solver
+    type: solution_method
+    concept: gram_schmidt
+    name: "施密特正交化 / 单位化"
+    applies_when: "给定一组向量，要求正交化或求标准正交基"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_gramschmidt.py
+    input_schema:
+      vectors: "list of column vectors"
+      orthonormal: "是否单位化"
+    output_form: "list of vectors"
+    sympy_entry: "sympy.matrices.dense.MutableDenseMatrix.GramSchmidt"
+
+  - id: linear_independence_solver
+    type: solution_method
+    concept: linear_independence
+    name: "线性相关性判定 / 极大无关组"
+    applies_when: "要求判断线性相关或求极大无关组"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_independence.py
+    input_schema:
+      vectors: "list of vectors"
+    output_form: "independent/dependent + rank + 极大无关组下标"
+
+  - id: basis_dimension_solver
+    type: solution_method
+    concept: basis
+    name: "基 / 维数 / 列空间 / 零空间"
+    applies_when: "要求 basis / dimension / column space / nullspace"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_basis.py
+    input_schema:
+      matrix: "Matrix"
+    output_form: "basis list + dimension"
+
+  - id: quadratic_form_solver
+    type: solution_method
+    concept: quadratic_form
+    name: "二次型正定性判定（顺序主子式法）"
+    applies_when: "要求判断正定/负定/不定"
+    tool: sympy
+    solver_template: sympy_solvers/linalg_quadratic_form.py
+    input_schema:
+      matrix: "对称矩阵"
+    output_form: "positive definite | negative definite | indefinite | semidefinite"
+
+  # ──── LLM 兜底：概念题 / 证明题 / SymPy 不覆盖的表述 ────
+
+  - id: linalg_conceptual_llm
+    type: solution_method
+    concept: linear_algebra
+    name: "国产 LLM 推理（DeepSeek 主引擎）"
+    applies_when: "证明题、定理陈述题、SymPy 无法结构化解析的题型"
+    tool: llm
+    solver_template: llm_solvers/linalg_conceptual.py
+    input_schema:
+      problem_text: "题目原文"
+      lang: "zh | en"
+    output_form: "{solved, steps, answer_latex, method}"
+
+# ============================================================
+# CLASSIFICATION RULES — 优先级队列
+# ============================================================
+# priority 越高越先匹配。跨 domain 时与 calculus_limits 的规则一起全局排序，
+# 所以这里用高区间把线性代数包住，让"确定性优先"原则成立：
+#   具体可执行的算法 > 泛化的概念题。
+#
+# 排序原则（重要）：
+#   1. 有明确可执行算法的任务（对角化、正交化、方程组）优先于泛化的"矩阵题"
+#   2. 需要同一份 Matrix 输入但输出不同的，靠关键词区分
+#   3. 兜底规则优先级最低
+
+classification_rules:
+
+  # ──── 高优先级：结构明确、一步到位的算法题 ────
+
+  - priority: 900
+    pattern:
+      text_contains: ["gram-schmidt", "gram schmidt", "施密特", "正交化",
+                      "orthogonal basis", "orthonormal basis", "标准正交基"]
+    maps_to: gram_schmidt
+    solver: gram_schmidt_solver
+    reason: "施密特正交化 —— 关键词唯一，算法确定"
+
+  - priority: 890
+    pattern:
+      text_contains: ["diagonaliz", "对角化", "diagonalisable", "对角矩阵",
+                      "P^{-1}AP", "P^{-1} A P"]
+    maps_to: diagonalization
+    solver: diagonalize_solver
+    reason: "对角化请求 —— 需先算特征值再判亏"
+
+  - priority: 880
+    pattern:
+      text_contains: ["positive definite", "negative definite", "正定", "负定",
+                      "quadratic form", "二次型", "顺序主子式"]
+    maps_to: quadratic_form
+    solver: quadratic_form_solver
+    reason: "二次型/正定性 —— 顺序主子式判据"
+
+  - priority: 870
+    pattern:
+      text_contains: ["linear system", "system of equations", "线性方程组", "方程组",
+                      "solve Ax", "augmented matrix", "增广矩阵", "通解",
+                      "general solution", "基础解系", "particular solution", "特解"]
+      has_linear_system: true
+    maps_to: linear_system
+    solver: linear_system_solver
+    reason: "线性方程组 —— 存在增广矩阵或多元一次方程组"
+
+  - priority: 860
+    pattern:
+      # 不设 has_matrix:false —— 教材里向量几乎都用 pmatrix 写，
+      # 加了那个负条件反而会把标准的线性相关性题漏掉（实测过）。
+      text_contains: ["linearly independent", "linearly dependent", "线性相关",
+                      "线性无关", "极大无关组", "maximal independent"]
+    maps_to: linear_independence
+    solver: linear_independence_solver
+    reason: "向量组相关性 —— 给定向量列表（非单一矩阵）"
+
+  - priority: 850
+    pattern:
+      text_contains: ["basis", "dimension", "基", "维数", "column space",
+                      "nullspace", "null space", "列空间", "零空间", "解空间"]
+    maps_to: basis
+    solver: basis_dimension_solver
+    reason: "基/维数/子空间"
+
+  # ──── 中优先级：单一运算，输入都是 Matrix，靠关键词区分 ────
+
+  - priority: 840
+    pattern:
+      text_contains: ["eigenvector", "eigenvectors", "特征向量", "eigenspace", "特征子空间"]
+      has_matrix: true
+    maps_to: eigenvector
+    solver: eigen_solver
+    reason: "特征向量（含特征空间基）"
+
+  - priority: 835
+    pattern:
+      text_contains: ["eigenvalue", "eigenvalues", "特征值", "characteristic polynomial",
+                      "characteristic equation", "特征多项式", "特征方程"]
+    maps_to: eigenvalue
+    solver: eigen_solver
+    reason: "特征值 / 特征多项式"
+
+  - priority: 820
+    pattern:
+      text_contains: ["determinant", "行列式", "det(", "|A|", "det A"]
+    maps_to: determinant
+    solver: determinant_solver
+    reason: "行列式"
+
+  - priority: 810
+    pattern:
+      text_contains: ["inverse", "invertible", "invertibility", "逆矩阵", "求逆",
+                      "A^{-1}", "singular", "非奇异"]
+    maps_to: matrix_inverse
+    solver: inverse_solver
+    reason: "逆矩阵 / 可逆性判定"
+
+  - priority: 800
+    pattern:
+      text_contains: ["rank", "秩", "r(A)"]
+    maps_to: matrix_rank
+    solver: rank_solver
+    reason: "矩阵的秩"
+
+  - priority: 790
+    pattern:
+      text_contains: ["trace", "迹", "tr(A)"]
+    maps_to: trace
+    solver: trace_transpose_solver
+    reason: "迹"
+
+  - priority: 780
+    pattern:
+      text_contains: ["transpose", "转置", "A^T"]
+    maps_to: transpose
+    solver: trace_transpose_solver
+    reason: "转置"
+
+  # ──── 低优先级：泛化矩阵运算 ────
+
+  - priority: 700
+    pattern:
+      text_contains: ["multiply", "product AB", "A+B", "A-B", " compute ",
+                      "compute A", "矩阵乘法", "矩阵加法", "求 ","multiply the matrices",
+                      "A^{2}", "A^2", "power"]
+      has_matrix: true
+    maps_to: matrix
+    solver: matrix_arithmetic_solver
+    reason: "矩阵四则运算/幂"
+
+  # ──── 兜底：有矩阵但没匹配到具体运算 → 交 LLM 推理 ────
+
+  - priority: 600
+    pattern:
+      has_matrix: true
+    maps_to: linear_algebra
+    solver: linalg_conceptual_llm
+    reason: "有矩阵但无明确运算指令 —— 交给 LLM 判断题意"
+
+# ============================================================
+# VALIDATION RULES — 答案自检律
+# ============================================================
+# 这是 Level 4 要求的"答案验证模块"的知识部分：
+# 把"数学上必然成立的关系"写成机器可执行的约束，
+# 任何 solver 给出的答案都必须过这些关，否则标记为 unverified。
+
+validation_rules:
+
+  - id: inverse_sanity
+    concept: matrix_inverse
+    rule: "A · A^{-1} = I"
+    check: "simplify(A * Ainv - eye(n)) == zeros(n,n)"
+    on_fail: "答案错误 —— 逆矩阵定义不满足"
+
+  - id: det_multiplicative
+    concept: determinant
+    rule: "det(A) = Π λ_i"
+    check: "abs(det(A) - prod(eigenvals)) < tol"
+    on_fail: "行列式与特征值乘积不一致"
+
+  - id: trace_additive
+    concept: trace
+    rule: "tr(A) = Σ λ_i"
+    check: "abs(trace(A) - sum(eigenvals)) < tol"
+    on_fail: "迹与特征值之和不一致"
+
+  - id: eigen_residual
+    concept: eigenvalue
+    rule: "A v = λ v"
+    check: "simplify(A*v - lam*v) == 0"
+    on_fail: "特征对 (λ, v) 不满足定义式"
+
+  - id: diagonalization_check
+    concept: diagonalization
+    rule: "A = P Λ P^{-1}"
+    check: "simplify(P*Lam*Pinv - A) == 0"
+    on_fail: "对角化分解不成立"
+
+  - id: orthogonality_check
+    concept: gram_schmidt
+    rule: "(e_i, e_j) = δ_ij"
+    check: "abs(dot(e_i,e_j)) < tol for i≠j, abs(norm(e_i)-1) < tol"
+    on_fail: "正交化结果不正交或未单位化"
+
+  - id: rank_determinant_consistency
+    concept: matrix_rank
+    rule: "det(A) ≠ 0 ⟺ rank(A) = n"
+    check: "(det(A) != 0) == (rank(A) == n)"
+    on_fail: "秩与行列式非奇异性矛盾"
+
+  - id: system_residual
+    concept: linear_system
+    rule: "A x = b"
+    check: "simplify(A*x - b) == 0"
+    on_fail: "代入后不满足原方程"
+
+  - id: nullspace_consistency
+    concept: homogeneous_system
+    rule: "dim N(A) = n - rank(A)"
+    check: "len(nullspace(A)) == n - rank(A)"
+    on_fail: "零空间维数与秩-零度定理矛盾"

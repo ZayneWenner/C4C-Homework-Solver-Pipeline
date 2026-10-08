@@ -1,0 +1,413 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\allowdisplaybreaks[4]
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{线性代数 Linear Algebra}
+\lhead{贾静文 Jia Jingwen}
+\rfoot{Page \thepage}
+
+\newcommand{\problem}[1]{\subsection*{Problem #1}}
+\newcommand{\solution}{\paragraph{Solution.}}
+
+\definecolor{solutioncolor}{RGB}{0, 100, 0}
+\definecolor{warncolor}{RGB}{180, 60, 0}
+
+\begin{document}
+
+\begin{center}
+    {\LARGE\bfseries 线性代数作业解答} \\[0.5em]
+    {\large 线性代数 Linear Algebra} \\[0.3em]
+    贾静文 Jia Jingwen \quad | \quad 2026-10-08
+\end{center}
+
+\hrule
+\vspace{1em}
+\problem{P1}
+
+计算行列式 $\det A$，其中 $A = \begin{pmatrix} 2 & 1 \\ 3 & 5 \end{pmatrix}$。
+
+\solution
+
+\noindent{\small\textbf{方法：}行列式定义 / 三角化}
+
+给定矩阵 $A = \left[\begin{matrix}2 & 1\\3 & 5\end{matrix}\right]$
+
+计算行列式：$\det A = \left[\begin{matrix}2 & 1\\3 & 5\end{matrix}\right]$ 的行列式 $= 7$
+
+化为阶梯形可得主元行数为 $2$，矩阵 $非奇异$。
+
+因此 $\det A = 7$
+
+\textbf{Answer:}
+\[7\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P2}
+
+求矩阵 $A$ 的逆矩阵，其中 $A = \begin{pmatrix} 1 & 2 \\ 2 & 5 \end{pmatrix}$。
+
+\solution
+
+\noindent{\small\textbf{方法：}初等行变换 (A|E) → (E|A⁻¹)}
+
+给定 $A = \left[\begin{matrix}1 & 2\\2 & 5\end{matrix}\right]$
+
+先判是否可逆：计算 $\det A = 1$
+
+由于 $\det A \neq 0$，$A$ 可逆。用伴随矩阵法或初等行变换 $(A|E)\to(E|A^{-1})$：
+
+$A^{-1} = \left[\begin{matrix}5 & -2\\-2 & 1\end{matrix}\right]$
+
+\textbf{Answer:}
+\[\left[\begin{matrix}5 & -2\\-2 & 1\end{matrix}\right]\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（2/2）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P3}
+
+求矩阵 $A$ 的秩 $r(A)$，其中
+   $$A = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 1 & 1 & 1 \end{pmatrix}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}初等行变换 + 阶梯形}
+
+给定 $A = \left[\begin{matrix}1 & 2 & 3\\2 & 4 & 6\\1 & 1 & 1\end{matrix}\right]$（$3\times3$）
+
+作初等行变换化为阶梯形：$\sim \left[\begin{matrix}1 & 0 & -1\\0 & 1 & 2\\0 & 0 & 0\end{matrix}\right]$
+
+非零行的行数（或主元个数）为 $2$
+
+对照检验：$\det A = 0$，$为零故降秩$，与 $r(A)=2$ 一致。
+
+\textbf{Answer:}
+\[r(A) = 2\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P4}
+
+求矩阵 $A$ 的迹 $\mathrm{tr}(A)$ 与转置 $A^T$，其中 $A = \begin{pmatrix} 3 & -1 \\ 4 & 2 \end{pmatrix}$。
+
+\solution
+
+\noindent{\small\textbf{方法：}转置定义}
+
+给定 $A = \left[\begin{matrix}3 & -1\\4 & 2\end{matrix}\right]$
+
+转置的定义是把行列互换：$(A^T)_{ij} = A_{ji}$
+
+$A^T = \left[\begin{matrix}3 & 4\\-1 & 2\end{matrix}\right]$
+
+\textbf{Answer:}
+\[A^T = \left[\begin{matrix}3 & 4\\-1 & 2\end{matrix}\right]\]
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P5}
+
+解下列线性方程组：
+   $$\begin{cases}
+   x_1 + 2x_2 = 5 \\
+   2x_1 + 3x_2 = 8
+   \end{cases}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}唯一解：回代}
+
+系数矩阵 $A = \left[\begin{matrix}1 & 2\\2 & 3\end{matrix}\right]$，右端向量 $b = \left[\begin{matrix}5\\8\end{matrix}\right]$
+
+对增广矩阵作初等行变换：$(A\mid b) \sim \left[\begin{matrix}1 & 0 & 1\\0 & 1 & 2\end{matrix}\right]$
+
+得到 $r(A) = 2$，$r(A\mid b) = 2$，未知量个数 $n = 2$。
+
+因为 $r(A) = r(A\mid b) = n$，方程组有 \textbf{唯一解}。
+
+回代求得 $x = \left[\begin{matrix}1\\2\end{matrix}\right]$
+
+\textbf{Answer:}
+\[x = \left[\begin{matrix}1\\2\end{matrix}\right]\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P6}
+
+判定下列线性方程组解的情况并求其通解：
+   $$\begin{cases}
+   x_1 + x_2 + x_3 = 1 \\
+   2x_1 + 2x_2 + 2x_3 = 2 \\
+   x_1 + x_2 = 1
+   \end{cases}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}通解 = 特解 + 基础解系线性组合}
+
+系数矩阵 $A = \left[\begin{matrix}1 & 1 & 1\\2 & 2 & 2\\1 & 1 & 0\end{matrix}\right]$，右端向量 $b = \left[\begin{matrix}1\\2\\1\end{matrix}\right]$
+
+对增广矩阵作初等行变换：$(A\mid b) \sim \left[\begin{matrix}1 & 1 & 0 & 1\\0 & 0 & 1 & 0\\0 & 0 & 0 & 0\end{matrix}\right]$
+
+得到 $r(A) = 2$，$r(A\mid b) = 2$，未知量个数 $n = 3$。
+
+因为 $r(A) = r(A\mid b) = 2 < n = 3$，方程组有 \textbf{无穷多解}，含 $1$ 个自由未知量。
+
+令一个自由未知量为 $1$、其余为 $0$，得基础解系向量 $\xi_{1} = \left[\begin{matrix}-1\\1\\0\end{matrix}\right]$
+
+令全部自由未知量取 $0$，得一个特解 $\eta^{*} = \left[\begin{matrix}1\\0\\0\end{matrix}\right]$
+
+\textbf{通解}：$x = \eta^{*} + c_{1}\xi_{1}$，其中 $c_1$ 为任意常数。
+
+\textbf{Answer:}
+\[\text{通解：}\ x = \left[\begin{matrix}1\\0\\0\end{matrix}\right] + c_{1}\xi_{1}\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P7}
+
+求矩阵 $A = \begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix}$ 的特征值与特征向量。
+
+\solution
+
+\noindent{\small\textbf{方法：}特征多项式 det(A-λI)=0}
+
+给定 $A = \left[\begin{matrix}4 & 1\\2 & 3\end{matrix}\right]$
+
+解特征方程 $\det(A - \lambda I) = 0$：
+
+特征多项式 $p(\lambda) = \lambda^{2} - 7 \lambda + 10 = \left(\lambda - 5\right) \left(\lambda - 2\right)$
+
+$\lambda = 2$
+
+　　对应特征向量：$v = \left[\begin{matrix}- \frac{1}{2}\\1\end{matrix}\right]$（即解 $(A - 2I)v = 0$）
+
+　　几何重数（特征空间维数）$= 1$
+
+$\lambda = 5$
+
+　　对应特征向量：$v = \left[\begin{matrix}1\\1\end{matrix}\right]$（即解 $(A - 5I)v = 0$）
+
+　　几何重数（特征空间维数）$= 1$
+
+\textbf{Answer:}
+\[\lambda_{1} = 2;\; \lambda_{2} = 5\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（2/2）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P8}
+
+判断矩阵 $A = \begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix}$ 是否可对角化；若可以，求出可逆矩阵 $P$ 与对角矩阵 $\Lambda$，使 $P^{-1}AP = \Lambda$。
+
+\solution
+
+\noindent{\small\textbf{方法：}A = PΛP⁻¹}
+
+给定 $A = \left[\begin{matrix}4 & 1\\2 & 3\end{matrix}\right]$
+
+求得 $3$ 个（即 $n$ 个）线性无关特征向量，故可对角化。
+
+以特征向量为列构成 $P = \left[\begin{matrix}-1 & 1\\2 & 1\end{matrix}\right]$
+
+对应特征值构成对角阵 $\Lambda = \left[\begin{matrix}2 & 0\\0 & 5\end{matrix}\right]$
+
+$P^{-1} = \left[\begin{matrix}- \frac{1}{3} & \frac{1}{3}\\\frac{2}{3} & \frac{1}{3}\end{matrix}\right]$
+
+验证：$P^{-1}AP = \left[\begin{matrix}2 & 0\\0 & 5\end{matrix}\right] = \Lambda$
+
+\textbf{Answer:}
+\[P = \left[\begin{matrix}-1 & 1\\2 & 1\end{matrix}\right],\;\; \Lambda = \left[\begin{matrix}2 & 0\\0 & 5\end{matrix}\right]\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（2/2）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P9}
+
+用施密特正交化方法，将下列向量组化为标准正交基：
+   $$v_1 = \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix}, \quad
+   v_2 = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}, \quad
+   v_3 = \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}Gram-Schmidt 正交化 + 单位化}
+
+给定向量组：$\alpha_{1} = \left[\begin{matrix}1\\1\\0\end{matrix}\right]$，$\alpha_{2} = \left[\begin{matrix}1\\0\\1\end{matrix}\right]$，$\alpha_{3} = \left[\begin{matrix}0\\1\\1\end{matrix}\right]$
+
+取 $\beta_1 = \alpha_1 = \left[\begin{matrix}1\\1\\0\end{matrix}\right]$
+
+$\beta_{2} = \alpha_{2} - \frac{(\alpha_{2},\beta_{1})}{(\beta_{1},\beta_{1})}\beta_{1}= \left[\begin{matrix}\frac{1}{2}\\- \frac{1}{2}\\1\end{matrix}\right]$
+
+$\beta_{3} = \alpha_{3} - \frac{(\alpha_{3},\beta_{1})}{(\beta_{1},\beta_{1})}\beta_{1} - \frac{(\alpha_{3},\beta_{2})}{(\beta_{2},\beta_{2})}\beta_{2}= \left[\begin{matrix}- \frac{2}{3}\\\frac{2}{3}\\\frac{2}{3}\end{matrix}\right]$
+
+再逐一单位化 $e_k = \dfrac{\beta_k}{\|\beta_k\|}$：
+
+$e_{1} = \left[\begin{matrix}\frac{\sqrt{2}}{2}\\\frac{\sqrt{2}}{2}\\0\end{matrix}\right]$
+
+$e_{2} = \left[\begin{matrix}\frac{\sqrt{6}}{6}\\- \frac{\sqrt{6}}{6}\\\frac{\sqrt{6}}{3}\end{matrix}\right]$
+
+$e_{3} = \left[\begin{matrix}- \frac{\sqrt{3}}{3}\\\frac{\sqrt{3}}{3}\\\frac{\sqrt{3}}{3}\end{matrix}\right]$
+
+\textbf{Answer:}
+\[e_{1} = \left[\begin{matrix}\frac{\sqrt{2}}{2}\\\frac{\sqrt{2}}{2}\\0\end{matrix}\right],\quad e_{2} = \left[\begin{matrix}\frac{\sqrt{6}}{6}\\- \frac{\sqrt{6}}{6}\\\frac{\sqrt{6}}{3}\end{matrix}\right],\quad e_{3} = \left[\begin{matrix}- \frac{\sqrt{3}}{3}\\\frac{\sqrt{3}}{3}\\\frac{\sqrt{3}}{3}\end{matrix}\right]\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（2/2）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P10}
+
+判断下列向量组的线性相关性：
+   $$a_1 = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}, \quad
+   a_2 = \begin{pmatrix} 2 \\ 4 \\ 6 \end{pmatrix}, \quad
+   a_3 = \begin{pmatrix} 0 \\ 1 \\ 1 \end{pmatrix}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}秩判别法}
+
+把向量按列排成矩阵 $A = \left[\begin{matrix}1 & 2 & 0\\2 & 4 & 1\\3 & 6 & 1\end{matrix}\right]$（$3\times3$）
+
+作初等行变换：$\sim \left[\begin{matrix}1 & 2 & 0\\0 & 0 & 1\\0 & 0 & 0\end{matrix}\right]$
+
+秩为 $r(A) = 2$，向量个数为 $3$。
+
+因为 $r(A) <$ 向量个数，存在非零的组合系数使线性组合为零，向量组\textbf{线性相关}。
+
+一组非零系数为 $c = \left[\begin{matrix}-2\\1\\0\end{matrix}\right]$，满足 $Ac = 0$。
+
+\textbf{Answer:}
+\[\text{线性相关}\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{P11}
+
+判断二次型矩阵 $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$ 的正定性。
+
+\solution
+
+\noindent{\small\textbf{方法：}Sylvester 顺序主子式判据}
+
+给定对称矩阵 $A = \left[\begin{matrix}2 & 1\\1 & 2\end{matrix}\right]$
+
+用 Sylvester 判据：计算各阶顺序主子式。
+
+$1$ 阶顺序主子式 $D_{1} = \left[\begin{matrix}2\end{matrix}\right] \Rightarrow 2$
+
+$2$ 阶顺序主子式 $D_{2} = \left[\begin{matrix}2 & 1\\1 & 2\end{matrix}\right] \Rightarrow 3$
+
+所有顺序主子式均大于 $0$，故该二次型 \textbf{正定}。
+
+\textbf{Answer:}
+\[\text{正定}\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{AP12}
+
+求下列矩阵的逆矩阵，其中 $B = \begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix}$。
+
+\solution
+
+\noindent{\small\textbf{方法：}行列式判据}
+
+给定 $A = \left[\begin{matrix}1 & 2\\2 & 4\end{matrix}\right]$
+
+先判是否可逆：计算 $\det A = 0$
+
+因为 $\det A = 0$，故 $A$ 为奇异矩阵，\textbf{不可逆}。
+
+\textbf{Answer:}
+\[A^{-1} \text{ 不存在}\]
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\problem{AP13}
+
+求齐次方程组的基础解系与解空间维数：
+   $$\begin{cases}
+   x_1 + x_2 + x_3 = 0 \\
+   2x_1 + 2x_2 + 2x_3 = 0 \\
+   x_1 + x_2 = 0
+   \end{cases}$$
+
+\solution
+
+\noindent{\small\textbf{方法：}通解 = 特解 + 基础解系线性组合}
+
+系数矩阵 $A = \left[\begin{matrix}1 & 1 & 1\\2 & 2 & 2\\1 & 1 & 0\end{matrix}\right]$，右端向量 $b = \left[\begin{matrix}0\\0\\0\end{matrix}\right]$
+
+$b = 0$，这是\textbf{齐次}方程组 $Ax = 0$。
+
+对增广矩阵作初等行变换：$(A\mid b) \sim \left[\begin{matrix}1 & 1 & 0 & 0\\0 & 0 & 1 & 0\\0 & 0 & 0 & 0\end{matrix}\right]$
+
+得到 $r(A) = 2$，$r(A\mid b) = 2$，未知量个数 $n = 3$。
+
+因为 $r(A) = r(A\mid b) = 2 < n = 3$，方程组有 \textbf{无穷多解}，含 $1$ 个自由未知量。
+
+令一个自由未知量为 $1$、其余为 $0$，得基础解系向量 $\xi_{1} = \left[\begin{matrix}-1\\1\\0\end{matrix}\right]$
+
+\textbf{通解}：$x = c_{1}\xi_{1}$，其中 $c_1$ 为任意常数。
+
+\textbf{Answer:}
+\[\text{通解：}\ x = c_{1}\xi_{1}\]
+
+\noindent{\color{solutioncolor}\small $\blacksquare$ 答案已通过数学恒等式自检（1/1）}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\vspace{2em}
+\noindent\textit{共 13 题，自动求解 13 题，其中 11 题经数学恒等式验证通过，2 题暂无适用验证律。}
+\end{document}
